@@ -1,3 +1,5 @@
-.terraform
-./keys/rsa.key
-./keys/rsa.key.pub
+terraform/.terraform
+terraform/keys/rsa.key
+terraform/keys/rsa.key.pub
+terraform/terraform.tfstate.backup
+ansible/inventory.ini
