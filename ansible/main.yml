@@ -1,0 +1,18 @@
+---
+- name: wireguard vpn init
+  hosts: hosts
+  gather_facts: false
+
+  tasks:
+    - name: Run scrip and configure
+      ansible.builtin.expect:
+        command: "./legacy_script.sh" # Команда, которую нужно выполнить
+        responses:
+          # Сопоставление ожидаемых запросов (python regex) и ответов
+          "Введите имя пользователя:": "admin"
+          "Введите пароль:": "secret"
+      register: script_output # Регистрируем вывод для отладки
+
+    - name: Output scrip result
+      ansible.builtin.debug:
+        var: script_output.stdout_linen

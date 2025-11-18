@@ -2,4 +2,4 @@ terraform/.terraform
 terraform/keys/rsa.key
 terraform/keys/rsa.key.pub
 terraform/terraform.tfstate.backup
-ansible/inventory.ini
+ansible/hosts
