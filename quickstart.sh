@@ -1,12 +1,19 @@
 #!/bin/bash
 set -e
 
-echo "appling terraform"
+echo "Appling terraform"
 cd terraform
+
+if [ ! -f "./keys/rsa.key" ]; then
+    echo "Generating rsa keys"
+    chmod +x keys/keys-can-be-here.sh
+    ./keys/keys-can-be-here.sh
+fi
+
 terraform init
 terraform apply --auto-approve
 
-echo "creating inventory for ansible"
+echo "Creating inventory for ansible"
 if [ -f "../ansible/hosts" ]; then
     rm ../ansible/hosts
 fi
@@ -33,6 +40,6 @@ while ! nc -z "$(terraform output -raw instance_hostname)" 22 >/dev/null 2>&1; d
 done
 
 
-echo "starting ansible"
+echo "Starting ansible"
 cd ../ansible
 ansible-playbook -i hosts -i inventory.ini main.yml
