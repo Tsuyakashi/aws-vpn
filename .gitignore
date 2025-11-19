@@ -3,3 +3,4 @@ terraform/keys/rsa.key
 terraform/keys/rsa.key.pub
 terraform/terraform.tfstate.backup
 ansible/hosts
+wg0-client-user-cfg.conf

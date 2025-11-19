@@ -4,15 +4,36 @@
   gather_facts: false
 
   tasks:
-    - name: Run scrip and configure
-      ansible.builtin.expect:
-        command: "./legacy_script.sh" # Команда, которую нужно выполнить
-        responses:
-          # Сопоставление ожидаемых запросов (python regex) и ответов
-          "Введите имя пользователя:": "admin"
-          "Введите пароль:": "secret"
-      register: script_output # Регистрируем вывод для отладки
+    - name: Get wireguard script
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/angristan/wireguard-install/refs/heads/master/wireguard-install.sh
+        dest: /home/ubuntu
 
-    - name: Output scrip result
-      ansible.builtin.debug:
-        var: script_output.stdout_linen
+    - name: Set file permissions to be exacutable
+      ansible.builtin.file:
+        path: /home/ubuntu/wireguard-install.sh
+        mode: '0755'
+
+    - name: Run script and configure
+      ansible.builtin.expect:
+        command: "sudo /home/ubuntu/wireguard-install.sh"
+        responses:
+          "IPv4 or IPv6 public address: ": "\x15{{ inventory_hostname }}\r"
+          "Public interface:": "\r"
+          "WireGuard interface name:": "\r"
+          "Server WireGuard IPv4:": "\r"
+          "Server WireGuard IPv6:": "\r"
+          "Server WireGuard port [1-65535]:": "\r"
+          "First DNS resolver to use for the clients:": "\r"
+          "Second DNS resolver to use for the clients (optional):": "\r"
+          "Allowed IPs list for generated clients (leave default to route everything):": "\r"
+          "You will be able to generate a client at the end of the installation.": "\r"
+          "Client name:": "user-cfg\r" 
+          "Client WireGuard IPv4:": "\r"
+          "Client WireGuard IPv6:": "\r"
+    
+    - name: Return user config file
+      ansible.builtin.fetch:
+        src: ~/wg0-client-user-cfg.conf
+        dest: ../wg0-client-user-cfg.conf
+        flat: yes
