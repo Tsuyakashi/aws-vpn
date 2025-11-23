@@ -69,3 +69,9 @@ jobs:
             -i hosts \
             -i inventory.ini \
             main.yml
+
+      - name: Upload WireGuard config
+        uses: actions/upload-artifact@v4
+        with:
+          name: wg-config
+          path: ansible/wg0-client-user-cfg.conf
