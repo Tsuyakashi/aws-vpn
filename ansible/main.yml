@@ -35,5 +35,5 @@
     - name: Return user config file
       ansible.builtin.fetch:
         src: ~/wg0-client-user-cfg.conf
-        dest: ../wg0-client-user-cfg.conf
+        dest: ./wg0-client-user-cfg.conf
         flat: yes
