@@ -32,13 +32,16 @@ jobs:
             ssh-keygen -y -f keys/rsa.key > keys/rsa.key.pub
           fi
 
+      - name: Get tfstate from bucket
+        working-directory: terraform
+        run: |
+          aws s3 mv s3://${{ vars.BUCKET_NAME }}/terraform.tfstate \
+            terraform.tfstate
+
       - name: Terraform Init
         working-directory: terraform
         run: |
-          terraform init \
-            -backend-config="bucket=${{ vars.BUCKET_NAME }}" \
-            -backend-config="key=terraform.tfstate" \
-            -backend-config="region=${{ secrets.AWS_REGION }}"
+          terraform init
       
       - name: Terraform Destroy
         working-directory: terraform
