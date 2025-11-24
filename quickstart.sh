@@ -15,13 +15,12 @@ terraform apply --auto-approve
 
 echo "Creating inventory for ansible"
 if [ -f "../ansible/hosts" ]; then
-    rm ../ansible/hosts
+    echo "$(terraform output -raw instance_hostname)" >> ../ansible/hosts
+else
+    echo "[hosts]" > ../ansible/hosts
+    echo "$(terraform output -raw instance_hostname)" >> ../ansible/hosts
 fi
 
-tee -a ../ansible/hosts > /dev/null <<EOF
-[hosts]
-$(echo $(terraform output) | awk -F'"' '{print $2}')
-EOF
 
 while ! nc -z "$(terraform output -raw instance_hostname)" 22 >/dev/null 2>&1; do
     echo "Instance didnt start yet"

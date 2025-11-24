@@ -31,13 +31,19 @@ jobs:
             chmod 600 keys/rsa.key
             ssh-keygen -y -f keys/rsa.key > keys/rsa.key.pub
           fi
-         
 
       - name: Terraform Init
         working-directory: terraform
-        run: terraform init -input=false
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ env.bucket_name }}" \
+            -backend-config="key=terraform.tfstate" \
+            -backend-config="region=eu-central-1"
       
-
       - name: Terraform Destroy
         working-directory: terraform
         run: terraform destroy -auto-approve
+
+      - name: Delete S3 bucket
+        run: |
+          aws s3 rb s3://${{ env.bucket_name }} --force
