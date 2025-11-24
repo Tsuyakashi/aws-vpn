@@ -9,3 +9,8 @@ variable "instance_type" {
     type        = string
     default     = "t2.micro"
 }
+variable "ami" {
+  description = "Ubuntu 24.04 ami"
+  type = string
+  default = "ami-004e960cde33f9146"
+}
