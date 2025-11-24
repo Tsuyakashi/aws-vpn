@@ -17,8 +17,8 @@ jobs:
           if [ ! -f "./keys/rsa.key" ]; then
             mkdir -p keys
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > keys/rsa.key
-            ssh-keygen -y -f keys/rsa.key > keys/rsa.key.pub
             chmod 600 keys/rsa.key
+            ssh-keygen -y -f keys/rsa.key > keys/rsa.key.pub
           fi
           
       - name: Configure AWS credentials
