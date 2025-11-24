@@ -36,7 +36,7 @@ jobs:
         working-directory: terraform
         run: |
           terraform init \
-            -backend-config="bucket=${{ GITHUB_ENV.BUCKET_NAME }}" \
+            -backend-config="bucket=${{ vars.BUCKET_NAME }}" \
             -backend-config="key=terraform.tfstate" \
             -backend-config="region=eu-central-1"
       
@@ -46,4 +46,4 @@ jobs:
 
       - name: Delete S3 bucket
         run: |
-          aws s3 rb s3://${{ GITHUB_ENV.BUCKET_NAME }} --force
+          aws s3 rb s3://${{ vars.BUCKET_NAME }} --force
