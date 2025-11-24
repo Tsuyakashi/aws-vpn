@@ -38,7 +38,7 @@ jobs:
           terraform init \
             -backend-config="bucket=${{ vars.BUCKET_NAME }}" \
             -backend-config="key=terraform.tfstate" \
-            -backend-config="region=eu-central-1"
+            -backend-config="region=${{ secrets.AWS_REGION }}"
       
       - name: Terraform Destroy
         working-directory: terraform

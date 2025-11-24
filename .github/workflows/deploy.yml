@@ -24,20 +24,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          
-      - name: Create S3 bucket for tfstate
-        run: |
-          aws s3api create-bucket \
-            --bucket my-tfstate-bucket-${GITHUB_RUN_ID} \
-            --region eu-central-1 \
-            --create-bucket-configuration LocationConstraint=eu-central-1
-          aws s3api put-bucket-encryption \
-            --bucket my-tfstate-bucket-${GITHUB_RUN_ID} \
-            --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
-          echo "bucket_name=my-tfstate-bucket-${GITHUB_RUN_ID}" >> $GITHUB_ENV  
+          aws-region: ${{ secrets.AWS_REGION }}  
           
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
@@ -47,6 +36,16 @@ jobs:
         run: |
           terraform init
           terraform apply --auto-approve
+
+      - name: Create S3 bucket for tfstate
+        run: |
+          aws s3api create-bucket \
+            --bucket ${{ vars.BUCKET_NAME }} \
+            --region ${{ secrets.AWS_REGION }} \
+            --create-bucket-configuration LocationConstraint=${{ secrets.AWS_REGION }}
+          aws s3api put-bucket-encryption \
+            --bucket ${{ vars.BUCKET_NAME }} \
+            --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
 
       - name: Generate Ansible Host File
         working-directory: terraform
