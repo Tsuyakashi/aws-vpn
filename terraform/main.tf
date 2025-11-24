@@ -2,8 +2,12 @@ provider "aws" {
     region = "eu-central-1"
 }
 
+resource "random_id" "suffix" {
+  byte_length = 3
+}
+
 resource "aws_key_pair" "rsa_key" {
-    key_name = "rsa.key.pub"
+    key_name = "rsa-${var.instance_name}-${random_id.suffix.hex}"
     public_key = file("./keys/rsa.key.pub")
 }
 
