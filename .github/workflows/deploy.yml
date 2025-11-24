@@ -15,9 +15,10 @@ jobs:
         working-directory: terraform
         run: |
           if [ ! -f "./keys/rsa.key" ]; then
-              echo "Generating rsa keys"
-              chmod +x keys/keys-can-be-here.sh
-              ./keys/keys-can-be-here.sh &>/dev/null
+            mkdir -p keys
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > keys/rsa.key
+            ssh-keygen -y -f keys/rsa.key > keys/rsa.key.pub
+            chmod 600 keys/rsa.key
           fi
           
       - name: Configure AWS credentials

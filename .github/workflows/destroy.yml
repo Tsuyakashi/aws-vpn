@@ -18,12 +18,25 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Ensure RSA keys exist for Terraform
+        working-directory: terraform
+        run: |
+          if [ ! -f "./keys/rsa.key" ]; then
+            mkdir -p keys
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > keys/rsa.key
+            ssh-keygen -y -f keys/rsa.key > keys/rsa.key.pub
+            chmod 600 keys/rsa.key
+          fi
+         
+
       - name: Terraform Init
         working-directory: terraform
-        run: terraform init
+        run: terraform init -input=false
+      
 
       - name: Terraform Destroy
         working-directory: terraform
