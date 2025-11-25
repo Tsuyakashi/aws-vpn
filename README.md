@@ -49,6 +49,6 @@ provider_installation {
 }
 ```
 ## To-do list:
-- Add building from tg bot request
+- Add workflow trigger from tg bot request
 - Rewrite creating keys with [hashicorp/tls](https://dev.to/bansikah/deploying-an-aws-ec2-instance-with-terraform-and-ssh-access-d09#:~:text=your%20local%20machine:-,Terraform,key%20parameters%20for%20the%20deployment)
 - Rewrite .tf as modules
