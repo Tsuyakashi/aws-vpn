@@ -2,13 +2,15 @@
 set -e
 
 echo "Appling terraform"
-cd terraform
+# cd terraform
 
 if [ ! -f "./keys/rsa.key" ]; then
     echo "Generating rsa keys"
-    chmod +x keys/keys-can-be-here.sh
-    ./keys/keys-can-be-here.sh
+    ssh-keygen -f ./terraform/keys/rsa.key -t rsa -N ""
+    chmod 600 ./terraform/keys/rsa.key
 fi
+
+cd terraform
 
 terraform init
 terraform apply --auto-approve
