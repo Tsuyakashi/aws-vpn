@@ -84,8 +84,7 @@ jobs:
         run: |
           ansible-playbook \
             -i hosts \
-            -i inventory.ini \
-            main.yml
+            wireguard-setup.yml
 
       - name: Upload WireGuard config
         uses: actions/upload-artifact@v4

@@ -1,0 +1,57 @@
+---
+- name: wireguard vpn init
+  hosts: hosts
+  gather_facts: false
+  vars:
+    ansible_ssh_private_key_file: "../terraform/keys/rsa.key"
+    ansible_user: "ubuntu"
+    ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
+    wireguard_script_url: https://raw.githubusercontent.com/angristan/wireguard-install/refs/heads/master/wireguard-install.sh
+    home_dir: "/home/ubuntu"
+    client_name: "user-cfg"
+    wireguard_script_path: "{{ home_dir }}/wireguard-install.sh"
+    client_config_path: "{{ home_dir }}/wg0-client-{{ client_name }}.conf"
+    client_local_config_path: "./wg0-client-{{ client_name }}.conf"
+
+  tasks:
+    - name: Wait for server to be ready
+      ansible.builtin.wait_for:
+        port: 22
+        host: "{{ inventory_hostname }}"
+        delay: 10
+        timeout: 300
+
+    - name: Get wireguard script
+      ansible.builtin.get_url:
+        url: "{{ wireguard_script_url }}"
+        dest: "{{ wireguard_script_path }}"
+
+    - name: Set file permissions to be executable
+      ansible.builtin.file:
+        path: "{{ wireguard_script_path }}"
+        mode: '0755'
+
+    - name: Run script and configure
+      become: true
+      ansible.builtin.expect:
+        command: "{{ wireguard_script_path }}"
+        responses:
+          "IPv4 or IPv6 public address: ": "\x15{{ inventory_hostname }}\r"
+          "Public interface:": "\r"
+          "WireGuard interface name:": "\r"
+          "Server WireGuard IPv4:": "\r"
+          "Server WireGuard IPv6:": "\r"
+          "Server WireGuard port [1-65535]:": "\r"
+          "First DNS resolver to use for the clients:": "\r"
+          "Second DNS resolver to use for the clients (optional):": "\r"
+          "Allowed IPs list for generated clients (leave default to route everything):": "\r"
+          "You will be able to generate a client at the end of the installation.": "\r"
+          "Client name:": "{{ client_name }}\r" 
+          "Client WireGuard IPv4:": "\r"
+          "Client WireGuard IPv6:": "\r"
+    
+    - name: Return user config file
+      ansible.builtin.fetch:
+        src: "{{ client_config_path }}"
+        dest: "{{ client_local_config_path }}"
+        flat: yes
