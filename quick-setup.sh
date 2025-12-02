@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-! aws --version &>/dev/null && echo "AWS CLI is not installed" 
-! terraform --version &>/dev/null && echo "Terraform is not installed"
-! ansible --version &>/dev/null && echo "Ansible is not installed"
+! aws --version &>/dev/null && echo "AWS CLI is not installed" && exit 1
+! terraform --version &>/dev/null && echo "Terraform is not installed" && exit 1
+! ansible --version &>/dev/null && echo "Ansible is not installed" && exit 1
 
 echo "Starting up"
 
@@ -12,7 +12,7 @@ PRIVATE_KEY_PATH="$DIR_PATH/terraform/keys/rsa.key"
 INVENTORY_PATH="$DIR_PATH/ansible/hosts"
 PLAYBOOK_SETUP_PATH="$DIR_PATH/ansible/wireguard-setup.yml"
 
-echo "Appling terraform"
+echo "Applying terraform"
 # cd terraform
 
 if [ ! -f "$PRIVATE_KEY_PATH" ]; then
@@ -23,26 +23,27 @@ if [ ! -f "$PRIVATE_KEY_PATH" ]; then
 fi
 
 
+cd $DIR_PATH/terraform
 if [ ! -f $DIR_PATH/terraform/*.tfstate ]; then
-    cd $DIR_PATH/terraform
     terraform init
     terraform apply --auto-approve
 
-    echo "Creating inventory for ansible"
-    if [ -f "$INVENTORY_PATH" ]; then
-        echo "$(terraform output -raw instance_hostname)" >> $INVENTORY_PATH
-    else
-        echo "[hosts]" > $INVENTORY_PATH
-        echo "$(terraform output -raw instance_hostname)" >> $INVENTORY_PATH
-    fi
-
-
-    while ! nc -z "$(terraform output -raw instance_hostname)" 22 >/dev/null 2>&1; do
-        echo "Instance didnt start yet"
-        sleep 5
-    done
 else
     echo "Terraform applied, skipping"
+fi
+
+
+while ! nc -z "$(terraform output -raw instance_hostname)" 22 >/dev/null 2>&1; do
+    echo "Instance didnt start yet"
+    sleep 5
+done
+
+echo "Creating inventory for ansible"
+if [ -f "$INVENTORY_PATH" ]; then
+    echo "$(terraform output -raw instance_hostname)" >> $INVENTORY_PATH
+else
+    echo "[hosts]" > $INVENTORY_PATH
+    echo "$(terraform output -raw instance_hostname)" >> $INVENTORY_PATH
 fi
 
 if [ ! -f $DIR_PATH/ansible/*.conf ]; then

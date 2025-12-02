@@ -1,6 +1,6 @@
 # AWS-WireGuard-VPN
 ## Descriptions (Что это такое)
-### Инфроструктура для персонального vpn сервера на базе aws ec2 
+### Инфраструктура для персонального vpn сервера на базе aws ec2 
 Запуская `quickstart.sh` по необходимости создаются rsa ключи, с помощью Terraform создается инфраструктура из ЕС2, групп безопасности и ключа (по которому можно подключится через ssh), затем с помощью Ansible скачивается и настраивается сервер WireGuard, возвращается конфиг для использования клиентом
 ## New:
 #### Добавлен `deploy` и `destroy` из GitHub Actions
@@ -11,7 +11,7 @@
   ```
 ### 2. Run quickstart script
   ```bash
-  cd aws-vpn && ./quickstart
+  cd aws-vpn && ./quick-setup.sh
   ```
 ### 3. Take client conf:
 - For ubuntu 

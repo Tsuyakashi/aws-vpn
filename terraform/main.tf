@@ -1,7 +1,3 @@
-provider "aws" {
-    region = "eu-central-1"
-}
-
 resource "random_id" "suffix" {
   byte_length = 3
 }
