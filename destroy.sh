@@ -2,7 +2,7 @@
 
 set -e
 
-if [ ! -f *.tfstate ]; then
+if [ ! -f terraform/*.tfstate ]; then
     echo "Nothing to destroy"
     exit 1
 fi
