@@ -18,7 +18,7 @@
     ```bash
     sudo apt install wireguard -y
     ```
-    - `cp`/`mv` `client.conf` to `/var/wireguard/` as `wg0.conf`
+    - `cp`/`mv` `client.conf` to `/etc/wireguard/` as `wg0.conf`
     - Run:
     ```bash
     sudo wg-quick up wg0
