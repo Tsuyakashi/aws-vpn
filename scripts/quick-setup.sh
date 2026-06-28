@@ -8,7 +8,7 @@ DIR_PATH=$PWD
 
 cd "$DIR_PATH"
 
-if [ ! -f terraform.tfstate ]; then
+if [ -z "$(terraform state list 2>/dev/null)" ]; then
     terraform init
     terraform apply --auto-approve
 else
@@ -21,7 +21,7 @@ for i in {1..20}; do
         echo "Config ready"
         break
     fi
-    echo "Not ready yet..."
+    echo "$i. Not ready yet..."
     sleep 15
 done
 
