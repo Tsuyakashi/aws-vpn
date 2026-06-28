@@ -22,16 +22,6 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Ensure RSA keys exist for Terraform
-        working-directory: terraform
-        run: |
-          if [ ! -f "./keys/rsa.key" ]; then
-            mkdir -p keys
-            echo "${{ secrets.SSH_PRIVATE_KEY }}" > keys/rsa.key
-            chmod 600 keys/rsa.key
-            ssh-keygen -y -f keys/rsa.key > keys/rsa.key.pub
-          fi
-
       - name: Get tfstate from bucket
         working-directory: terraform
         run: |
