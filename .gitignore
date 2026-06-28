@@ -1,6 +1,4 @@
-terraform/.terraform
-terraform/keys/
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
-ansible/hosts
-ansible/*.conf
+.terraform*
+terraform.tfstate
+terraform.tfstate.backup
+*.conf

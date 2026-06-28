@@ -1,0 +1,22 @@
+variable "region" {
+  description = "region"
+  type        = string
+  default     = "eu-central-1"
+}
+
+variable "instance_name" {
+  description = "Value of the EC2 instance's Name tag."
+  type        = string
+  default     = "vpn-instance"
+}
+
+variable "instance_type" {
+  description = "The EC2 instance's type."
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "wg_port" {
+  type    = number
+  default = 51820
+}
