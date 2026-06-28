@@ -1,57 +1,42 @@
-# AWS-WireGuard-VPN
-## Descriptions (Что это такое)
-### Инфраструктура для персонального vpn сервера на базе aws ec2 
-Запуская `quickstart.sh` по необходимости создаются rsa ключи, с помощью Terraform создается инфраструктура из ЕС2, групп безопасности и ключа (по которому можно подключится через ssh), затем с помощью Ansible скачивается и настраивается сервер WireGuard, возвращается конфиг для использования клиентом
-## New:
-#### Добавлен `deploy` и `destroy` из GitHub Actions
+# aws-vpn
+
+One-command WireGuard VPN on AWS EC2. Terraform provisions the instance, user_data configures WireGuard, client config is returned as an artifact via GitHub Actions or saved locally via script.
+
+## How it works
+
+1. Terraform creates an EC2 instance (t2.micro, eu-central-1), security group (UDP 51820), and IAM role with SSM access
+2. User data script installs WireGuard, generates server/client keypairs, starts the tunnel, and pushes the client config to SSM Parameter Store as a SecureString
+3. The client config is fetched from SSM and returned as a downloadable artifact (GitHub Actions) or saved to `wg0-client.conf` (local script)
+
 ## Usage
-### 1. Clone repo
-  ```bash
-  git clone git@github.com:Tsuyakashi/aws-vpn.git
-  ```
-### 2. Run quickstart script
-  ```bash
-  cd aws-vpn && ./quick-setup.sh
-  ```
-### 3. Take client conf:
-- For ubuntu 
-    ```bash
-    sudo apt install wireguard -y
-    ```
-    - `cp`/`mv` `client.conf` to `/etc/wireguard/` as `wg0.conf`
-    - Run:
-    ```bash
-    sudo wg-quick up wg0
-    ```
-- For IPhone
-    - Get [WireGuard at App Store](https://apps.apple.com/ru/app/wireguard/id1441195209)
-    - Import conf in app
-## Needs:
-- Terraform
-- AWS cli (logged)
-- Ansible core
-## May be needed:
-### Yandex mirror
-Using:
+
+### Via GitHub Actions (recommended)
+
+1. Fork or clone the repo
+2. Set repository secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`
+3. Run **Deploy Infra** workflow manually — downloads `wg-config` artifact with the client config when done
+4. Run **Destroy Infra** to tear everything down when you're done
+
+### Local
+
+Requirements: `terraform`, `aws` CLI (configured)
+
 ```bash
-nano ~/.terraformrc
+git clone git@github.com:Tsuyakashi/aws-vpn.git
+cd aws-vpn
+./scripts/quick-setup.sh   # deploy + fetch config
+./scripts/destroy.sh       # tear down
 ```
-Add/replace:
+
+### Connecting
+
+**Linux / macOS**
 ```bash
-provider_installation {
-  network_mirror {
-    url = "https://terraform-mirror.yandexcloud.net/"
-    include = ["registry.terraform.io/*/*"]
-  }
-  direct {
-    exclude = ["registry.terraform.io/*/*"]
-  }
-}
+sudo wg-quick up ./wg0-client.conf
 ```
-## To-do list:
-- Add workflow trigger from tg bot request
-- Rewrite creating keys with [hashicorp/tls](https://dev.to/bansikah/deploying-an-aws-ec2-instance-with-terraform-and-ssh-access-d09#:~:text=your%20local%20machine:-,Terraform,key%20parameters%20for%20the%20deployment)
-- Rewrite .tf as modules
-  - full vpc
-- Add ansible playbook for more clients cfg
-- Modificate .sh for functionality 
+
+**iOS / Android** — import the config file into the [WireGuard app](https://www.wireguard.com/install/)
+
+## IAM permissions required
+
+The AWS user needs EC2 read/write, IAM role management (scoped to `vpn-ssm-role-*`), and SSM GetParameter/DeleteParameter on `/vpn/*`. See the policy JSON in the repo wiki or set it up manually following the inline comments in `main.tf`.
