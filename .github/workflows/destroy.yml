@@ -16,9 +16,14 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Download Terraform state
-        uses: actions/download-artifact@v4
-        with:
-          name: tfstate
+        run: |
+          RUN_ID=$(gh api \
+            "repos/${{ github.repository }}/actions/artifacts" \
+            --jq '[.artifacts[] | select(.name=="tfstate" and .expired==false)] | sort_by(.created_at) | last | .workflow_run.id')
+          echo "Using run $RUN_ID"
+          gh run download "$RUN_ID" --name tfstate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3

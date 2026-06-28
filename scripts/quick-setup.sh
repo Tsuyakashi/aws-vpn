@@ -25,6 +25,11 @@ for i in {1..20}; do
     sleep 15
 done
 
+if ! aws ssm get-parameter --name "/vpn/client-config" --with-decryption &>/dev/null; then
+    echo "Timed out waiting for config"
+    exit 1
+fi
+
 aws ssm get-parameter \
     --name "/vpn/client-config" \
     --with-decryption \

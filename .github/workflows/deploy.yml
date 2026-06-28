@@ -26,16 +26,22 @@ jobs:
           terraform init
           terraform apply --auto-approve
 
-      - name: Wait for user_data to finish
-        run: sleep 90
-
-      - name: Get WireGuard client config from SSM
+      - name: Wait and fetch WireGuard config from SSM
         run: |
-          aws ssm get-parameter \
-            --name "/vpn/client-config" \
-            --with-decryption \
-            --query Parameter.Value \
-            --output text > wg0-client.conf
+          for i in $(seq 1 20); do
+            if aws ssm get-parameter --name "/vpn/client-config" --with-decryption &>/dev/null; then
+              echo "Config ready"
+              aws ssm get-parameter \
+                --name "/vpn/client-config" \
+                --with-decryption \
+                --query Parameter.Value \
+                --output text > wg0-client.conf
+              exit 0
+            fi
+            echo "$i. Not ready yet..."
+            sleep 15
+          done
+          echo "Timed out" && exit 1
 
       - name: Upload WireGuard config
         uses: actions/upload-artifact@v4
