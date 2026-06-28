@@ -42,3 +42,9 @@ jobs:
         with:
           name: wg-config
           path: wg0-client.conf
+
+      - name: Upload Terraform state
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfstate
+          path: terraform.tfstate

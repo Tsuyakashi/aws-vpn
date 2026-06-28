@@ -1,12 +1,9 @@
 name: Destroy Infra
-
 on:
   workflow_dispatch:
-
 jobs:
   destroy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -18,25 +15,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Download Terraform state
+        uses: actions/download-artifact@v4
+        with:
+          name: tfstate
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Get tfstate from bucket
-        working-directory: terraform
-        run: |
-          aws s3 mv s3://${{ vars.BUCKET_NAME }}/terraform.tfstate \
-            terraform.tfstate
-
       - name: Terraform Init
-        working-directory: terraform
-        run: |
-          terraform init
-      
+        run: terraform init
+
       - name: Terraform Destroy
-        working-directory: terraform
         run: terraform destroy -auto-approve
 
-      - name: Delete S3 bucket
+      - name: Cleanup SSM parameter
         run: |
-          aws s3 rb s3://${{ vars.BUCKET_NAME }} --force
+          aws ssm delete-parameter --name "/vpn/client-config" || true
