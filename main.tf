@@ -41,12 +41,17 @@ resource "aws_iam_instance_profile" "ssm_profile" {
   role        = aws_iam_role.ssm_role.name
 }
 
+resource "random_integer" "wg_port" {
+  min = 49152
+  max = 65535
+}
+
 resource "aws_security_group" "wg" {
   name = "wireguard-sg"
 
   ingress {
-    from_port   = var.wg_port
-    to_port     = var.wg_port
+    from_port   = random_integer.wg_port.result
+    to_port     = random_integer.wg_port.result
     protocol    = "udp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -67,7 +72,7 @@ resource "aws_instance" "vpn" {
   associate_public_ip_address = true
 
   user_data = templatefile("${path.module}/scripts/wireguard-init.sh.tpl", {
-    wg_port     = var.wg_port
+    wg_port     = random_integer.wg_port.result
     region      = var.region
     client_name = "user-cfg"
   })

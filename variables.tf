@@ -15,8 +15,3 @@ variable "instance_type" {
   type        = string
   default     = "t2.micro"
 }
-
-variable "wg_port" {
-  type    = number
-  default = 51820
-}
