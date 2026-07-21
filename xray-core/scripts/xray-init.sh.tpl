@@ -24,8 +24,9 @@ XRAY_BIN=/usr/local/bin/xray/xray
 # Идентификаторы
 UUID=$("$XRAY_BIN" uuid)
 KEYS=$("$XRAY_BIN" x25519)
-PRIVATE_KEY=$(echo "$KEYS" | awk '/Private key/ {print $3}')
-PUBLIC_KEY=$(echo "$KEYS" | awk '/Public key/ {print $3}')
+
+PRIVATE_KEY=$(echo "$KEYS" | awk -F': ' '/^Private[Kk]ey/ {print $2}')
+PUBLIC_KEY=$(echo "$KEYS" | awk -F': ' '/^(Public[Kk]ey|Password)/ {print $2}')
 SHORT_ID=$(openssl rand -hex 8)
 
 SERVER_IP=$(curl -s https://checkip.amazonaws.com)
