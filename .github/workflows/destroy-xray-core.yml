@@ -1,0 +1,41 @@
+name: Destroy Infra
+on:
+  workflow_dispatch:
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Download Terraform state
+        run: |
+          RUN_ID=$(gh api \
+            "repos/${{ github.repository }}/actions/artifacts" \
+            --jq '[.artifacts[] | select(.name=="tfstate" and .expired==false)] | sort_by(.created_at) | last | .workflow_run.id')
+          echo "Using run $RUN_ID"
+          gh run download "$RUN_ID" --name tfstate --dir ./xray-core
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: ./xray-core
+        run: terraform init
+
+      - name: Terraform Destroy
+        working-directory: ./xray-core
+        run: terraform destroy -auto-approve
+
+      - name: Cleanup SSM parameter
+        run: |
+          aws ssm delete-parameter --name "/vpn/client-config" || true
