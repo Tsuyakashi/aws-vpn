@@ -94,9 +94,13 @@ CLIENT_URI="vless://$UUID@$SERVER_IP:${xray_port}?encryption=none&flow=xtls-rprx
 echo "$CLIENT_URI" > "/root/xray-client-${client_name}.txt"
 qrencode -t ansiutf8 "$CLIENT_URI" > "/root/xray-client-${client_name}.qr.txt" || true
 
-aws ssm put-parameter \
-  --name "/vpn/client-config" \
-  --value "$CLIENT_URI" \
-  --type SecureString \
-  --overwrite \
-  --region ${region}
+if command -v aws &>/dev/null && aws sts get-caller-identity &>/dev/null; then
+    aws ssm put-parameter \
+      --name "/vpn/client-config" \
+      --value "$CLIENT_URI" \
+      --type SecureString \
+      --overwrite \
+      --region ${region}
+else
+    echo "AWS SSM недоступен — креды клиента только в /root/xray-client-${client_name}.txt"
+fi
