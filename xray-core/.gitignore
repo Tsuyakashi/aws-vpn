@@ -4,3 +4,4 @@ terraform.tfstate.backup
 xray-client.txt
 xray-client.png
 .vagrant
+.xray-init.rendered.sh
