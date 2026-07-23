@@ -1,4 +1,4 @@
-name: Destroy Infra
+name: Destroy wireguard
 on:
   workflow_dispatch:
 jobs:
