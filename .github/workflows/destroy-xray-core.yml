@@ -1,4 +1,4 @@
-name: Destroy Infra
+name: Destroy xray
 on:
   workflow_dispatch:
 jobs:
