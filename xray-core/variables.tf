@@ -25,7 +25,7 @@ variable "xray_port" {
 variable "reality_dest" {
   description = "Domain to masquerade as for Reality (must serve TLS 1.3 + HTTP/2, no CDN in front of it, and its serverName must match). Check candidates with https://github.com/XTLS/Xray-core/discussions before changing."
   type        = string
-  default     = "www.microsoft.com"
+  default     = "www.cloudflare.com"
 }
 
 variable "client_name" {
