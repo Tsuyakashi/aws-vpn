@@ -8,6 +8,8 @@ DIR_PATH=$PWD
 
 cd "$DIR_PATH"
 
+aws ssm delete-parameter --name "/vpn/client-config" || true
+
 if [ -z "$(terraform state list 2>/dev/null)" ]; then
     terraform init
     terraform apply --auto-approve
