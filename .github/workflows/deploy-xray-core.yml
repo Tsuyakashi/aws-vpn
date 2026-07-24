@@ -21,6 +21,10 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Cleanup stale SSM parameter
+        run: |
+          aws ssm delete-parameter --name "/vpn/client-config" || true
+
       - name: Terraform Init / Apply
         working-directory: ./xray-core
         run: |
